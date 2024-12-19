@@ -8,3 +8,4 @@ requests
 validators
 langchain-yt-dlp
 youtube-transcript-api
+unstructured
