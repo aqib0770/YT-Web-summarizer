@@ -52,7 +52,7 @@ if st.button("Summarize"):
                 docs = loader.load()
 
                 if not docs or all(not doc.page_content.strip() for doc in docs):
-                    st.error("No content found in the provided URL")
+                    st.error("No content or transcriptfound in the provided URL")
                     st.stop()
                 chain = load_summarize_chain(llm, chain_type="stuff", prompt=prompt)
                 summary = chain.run(docs)
