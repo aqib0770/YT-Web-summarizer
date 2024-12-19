@@ -4,16 +4,20 @@ from langchain_groq import ChatGroq
 from langchain.chains.summarize import load_summarize_chain
 from langchain_community.document_loaders import YoutubeLoader, UnstructuredURLLoader
 from langchain_yt_dlp.youtube_loader import YoutubeLoaderDL
+import os
 
 st.set_page_config(page_title="LangChain: Summarize text from YT or website")
 st.title("Langchain: Summarize text from YT or Website")
+st.warning("Don't submit url of youtube video greater than 30 minutes. It can exceed the token limit")
 st.subheader("Summarize URL")
 
 
 with st.sidebar:
     groq_api_key = st.text_input("Groq API key", value="", type="password")
+    st.markdown("Get your API key from [here](https://groq.com/)")
     video_info = st.checkbox("Add video info", value=False)
 
+os.environ["GROQ_API_KEY"] = groq_api_key
 llm = ChatGroq(groq_api_key=groq_api_key, model="gemma2-9b-it")
 
 prompt_template = """
