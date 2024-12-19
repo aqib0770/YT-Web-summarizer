@@ -6,10 +6,10 @@ from langchain_community.document_loaders import YoutubeLoader, UnstructuredURLL
 from langchain_yt_dlp.youtube_loader import YoutubeLoaderDL
 import os
 
-st.set_page_config(page_title="LangChain: Summarize text from YT or website")
-st.title("Langchain: Summarize text from YT or Website")
+st.set_page_config(page_title="YT Web summarizer")
+st.title("Summarize text from YT or Website")
 st.warning("Don't submit url of youtube video greater than 30 minutes. It can exceed the token limit")
-st.subheader("Summarize URL")
+st.subheader("Enter the URL")
 
 
 with st.sidebar:
@@ -21,7 +21,8 @@ os.environ["GROQ_API_KEY"] = groq_api_key
 llm = ChatGroq(groq_api_key=groq_api_key, model="gemma2-9b-it")
 
 prompt_template = """
-Provide a summary of the following content in 300 words:
+If the content is empty or invalid, respond with an appropriate message.
+Otherwise Provide a summary of the following content in 300 words:
 Content: {text}
 """
 
@@ -29,7 +30,7 @@ prompt = PromptTemplate(template=prompt_template, input_variables=["text"])
 
 url = st.text_input("URL",label_visibility="collapsed")
 
-if st.button("Summarize the content from YT or Website"):
+if st.button("Summarize"):
     if not groq_api_key.strip() or not url.strip():
         st.error("Please provide the required information")
     elif not validators.url(url):
@@ -50,6 +51,9 @@ if st.button("Summarize the content from YT or Website"):
                                                  headers={"User-Agent": "Mozilla/5.0 (X11; Linux x86_64; rv:132.0) Gecko/20100101 Firefox/132.0"})
                 docs = loader.load()
 
+                if not docs or all(not doc.page_content.strip() for doc in docs):
+                    st.error("No content found in the provided URL")
+                    st.stop()
                 chain = load_summarize_chain(llm, chain_type="stuff", prompt=prompt)
                 summary = chain.run(docs)
 
