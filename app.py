@@ -9,7 +9,7 @@ import os
 st.set_page_config(page_title="YT Web summarizer")
 st.title("Summarize text from YouTube or Website")
 st.subheader("Enter the URL")
-
+url = st.text_input("URL",label_visibility="collapsed")
 
 with st.sidebar:
     google_api_key = st.text_input("Enter your API key", value="", type="password")
@@ -29,7 +29,6 @@ Content: {text}
 
 prompt = PromptTemplate(template=prompt_template, input_variables=["text"])
 
-url = st.text_input("URL",label_visibility="collapsed")
 
 if st.button("Summarize"):
     if not google_api_key.strip() or not url.strip():
