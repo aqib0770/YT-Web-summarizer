@@ -1,28 +1,29 @@
 import validators, streamlit as st
 from langchain.prompts import PromptTemplate
-from langchain_groq import ChatGroq
+from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain.chains.summarize import load_summarize_chain
 from langchain_community.document_loaders import YoutubeLoader, UnstructuredURLLoader
 from langchain_yt_dlp.youtube_loader import YoutubeLoaderDL
 import os
 
 st.set_page_config(page_title="YT Web summarizer")
-st.title("Summarize text from YT or Website")
-st.warning("Don't submit url of youtube video greater than 30 minutes. It can exceed the token limit")
+st.title("Summarize text from YouTube or Website")
 st.subheader("Enter the URL")
 
 
 with st.sidebar:
-    groq_api_key = st.text_input("Groq API key", value="", type="password")
-    st.markdown("Get your API key from [here](https://groq.com/)")
+    google_api_key = st.text_input("Groq API key", value="", type="password")
+    st.markdown("Get your API key from [here](https://aistudio.google.com/prompts/new_chat)")
     video_info = st.checkbox("Add video info", value=False)
+    if video_info:
+        lang = st.selectbox("Transcript Language", ["en", "hi"], index=0)
 
-os.environ["GROQ_API_KEY"] = groq_api_key
-llm = ChatGroq(groq_api_key=groq_api_key, model="gemma2-9b-it")
+os.environ["GROQ_API_KEY"] = google_api_key
+llm = ChatGoogleGenerativeAI(api_key=google_api_key, model="models/gemini-2.0-flash-exp")
 
 prompt_template = """
-If the content is empty or invalid, respond with an appropriate message.
-Otherwise Provide a summary of the following content in 300 words:
+If the content is empty, repetitive or irrelevant, respons with "The content could not be summarized meaningfully..
+Otherwise Provide a summary of the following content:
 Content: {text}
 """
 
@@ -31,7 +32,7 @@ prompt = PromptTemplate(template=prompt_template, input_variables=["text"])
 url = st.text_input("URL",label_visibility="collapsed")
 
 if st.button("Summarize"):
-    if not groq_api_key.strip() or not url.strip():
+    if not google_api_key.strip() or not url.strip():
         st.error("Please provide the required information")
     elif not validators.url(url):
         st.error("Please enter a valid URL. It can may be a YT video url or website url")
@@ -41,7 +42,7 @@ if st.button("Summarize"):
                 metadata = None
                 if "youtube.com" in url:
                     if video_info:
-                        loader = YoutubeLoader.from_youtube_url(youtube_url=url)
+                        loader = YoutubeLoader.from_youtube_url(youtube_url=url, language=lang)
                         metadata = YoutubeLoaderDL.from_youtube_url(url, add_video_info=video_info).load()
                     else:
                         loader = YoutubeLoader.from_youtube_url(youtube_url=url, add_video_info=video_info)
