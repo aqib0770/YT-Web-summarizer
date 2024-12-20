@@ -12,9 +12,9 @@ st.subheader("Enter the URL")
 
 
 with st.sidebar:
-    google_api_key = st.text_input("Groq API key", value="", type="password")
+    google_api_key = st.text_input("Enter your API key", value="", type="password")
     st.markdown("Get your API key from [here](https://aistudio.google.com/prompts/new_chat)")
-    video_info = st.checkbox("Add video info", value=False)
+    video_info = st.checkbox("Add video metadata", value=False)
     if video_info:
         lang = st.selectbox("Transcript Language", ["en", "hi"], index=0)
 
